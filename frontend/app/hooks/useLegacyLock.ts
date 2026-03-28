@@ -12,9 +12,7 @@ import {
 } from '../lib/anchor';
 import { toast } from 'sonner';
 
-// IMPORT YOUR IDL JSON FILE HERE
-// import IDL from '../lib/legacy_lock_program.json';
-const IDL: any = {}; // Zastąp zaimportowanym IDL gdy bedzie w folderze
+import IDL from '../lib/legacy_lock_program.json';
 
 export function useLegacyLock() {
     const { connection } = useConnection();
@@ -22,6 +20,19 @@ export function useLegacyLock() {
     const [vaultData, setVaultData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleError = useCallback((error: any, defaultTitle: string) => {
+        const msg = error.message || "";
+        console.error(`${defaultTitle}:`, error);
+        
+        if (msg.includes("Attempt to debit an account but found no record of a prior credit")) {
+            toast.error("Brak środków", { 
+                description: "Nie masz wystarczającej ilości SOL na koncie, aby opłacić transakcję. Skorzystaj z 'airdrop' na devnecie." 
+            });
+        } else {
+            toast.error(defaultTitle, { description: msg });
+        }
+    }, []);
 
     const getProvider = useCallback(() => {
         if (!wallet || !wallet.publicKey || !wallet.signTransaction || !wallet.signAllTransactions) return null;
@@ -39,7 +50,7 @@ export function useLegacyLock() {
         try {
             const program = getLegacyLockProgram(provider, IDL);
             const [vaultPDA] = getVaultPDA(wallet.publicKey);
-            const data = await program.account.legacyVault.fetchNullable(vaultPDA);
+            const data = await (program.account as any).legacyVault.fetchNullable(vaultPDA);
             setVaultData(data);
         } catch (error) {
             console.error("No vault found or error fetching", error);
@@ -92,8 +103,7 @@ export function useLegacyLock() {
             toast.success("Vault Initialized!", { description: `TX: ${tx}` });
             await refreshVault();
         } catch (error: any) {
-            toast.error("Failed to initialize vault", { description: error.message });
-            console.error(error);
+            handleError(error, "Failed to initialize vault");
         } finally {
             setIsLoading(false);
         }
@@ -118,7 +128,7 @@ export function useLegacyLock() {
             toast.success("Ping successful", { description: "Your activity has been confirmed." });
             await refreshVault();
         } catch (error: any) {
-            toast.error("Ping failed", { description: error.message });
+            handleError(error, "Ping failed");
         } finally {
             setIsLoading(false);
         }
@@ -134,18 +144,18 @@ export function useLegacyLock() {
             const [vaultPDA] = getVaultPDA(wallet.publicKey);
             const [witnessRegistryPDA] = getWitnessRegistryPDA(vaultPDA);
 
-            const tx = await program.methods.ownerCancel()
+            const tx = await program.methods.veto()
                 .accounts({
                     vault: vaultPDA,
                     witnessRegistry: witnessRegistryPDA,
-                    owner: wallet.publicKey,
+                    signer: wallet.publicKey,
                 })
                 .rpc();
 
             toast.success("Veto Successful", { description: "The execution has been cancelled." });
             await refreshVault();
         } catch (error: any) {
-            toast.error("Veto failed", { description: error.message });
+            handleError(error, "Veto failed");
         } finally {
             setIsLoading(false);
         }
@@ -174,7 +184,7 @@ export function useLegacyLock() {
             toast.success("Inactivity Confirmed", { description: "Your witness vote has been recorded." });
             await refreshVault();
         } catch (error: any) {
-            toast.error("Witness vote failed", { description: error.message });
+            handleError(error, "Witness vote failed");
         } finally {
             setIsLoading(false);
         }
@@ -189,7 +199,7 @@ export function useLegacyLock() {
             const program = getLegacyLockProgram(provider, IDL);
             const [vaultPDA] = getVaultPDA(vaultData.owner); 
             
-            const tx = await program.methods.executeTransfer()
+            const tx = await program.methods.executeInheritance()
                 .accounts({
                     vault: vaultPDA,
                     signer: wallet.publicKey,
@@ -199,7 +209,7 @@ export function useLegacyLock() {
             toast.success("Inheritance Executed", { description: "The vault has been triggered for claim." });
             await refreshVault();
         } catch (error: any) {
-            toast.error("Execution failed", { description: error.message });
+            handleError(error, "Execution failed");
         } finally {
             setIsLoading(false);
         }

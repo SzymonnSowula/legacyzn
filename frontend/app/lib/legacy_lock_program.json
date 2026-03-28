@@ -1,0 +1,1430 @@
+{
+  "address": "J8k4XDzw1yKwXg2kKmL6Px1WzTJ4qfKKWEehfyDLRjSy",
+  "metadata": {
+    "name": "legacy_lock_program",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "add_session_key",
+      "docs": [
+        "Adds or updates a session key that can ping the vault or veto processes."
+      ],
+      "discriminator": [
+        48,
+        71,
+        165,
+        97,
+        37,
+        22,
+        181,
+        59
+      ],
+      "accounts": [
+        {
+          "name": "vault",
+          "writable": true
+        },
+        {
+          "name": "owner",
+          "signer": true,
+          "relations": [
+            "vault"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "new_session_key",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "claim_sol",
+      "docs": [
+        "Beneficiaries call this to withdraw their share of SOL from an executed vault."
+      ],
+      "discriminator": [
+        139,
+        113,
+        179,
+        189,
+        190,
+        30,
+        132,
+        195
+      ],
+      "accounts": [
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "vault.owner",
+                "account": "LegacyVault"
+              }
+            ]
+          }
+        },
+        {
+          "name": "beneficiary_list",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  101,
+                  110,
+                  101,
+                  102,
+                  105,
+                  99,
+                  105,
+                  97,
+                  114,
+                  105,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "vault"
+              }
+            ]
+          }
+        },
+        {
+          "name": "claimant",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "beneficiary_index",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "confirm_inactivity",
+      "docs": [
+        "Witnesses call this to confirm the owner is inactive once the threshold has passed."
+      ],
+      "discriminator": [
+        0,
+        36,
+        34,
+        126,
+        165,
+        179,
+        126,
+        176
+      ],
+      "accounts": [
+        {
+          "name": "vault",
+          "writable": true
+        },
+        {
+          "name": "witness_registry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  105,
+                  116,
+                  110,
+                  101,
+                  115,
+                  115,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "vault"
+              }
+            ]
+          }
+        },
+        {
+          "name": "witness",
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "execute_inheritance",
+      "docs": [
+        "Finalizes the inheritance process after the veto period ends, making funds claimable."
+      ],
+      "discriminator": [
+        108,
+        112,
+        129,
+        171,
+        5,
+        244,
+        41,
+        106
+      ],
+      "accounts": [
+        {
+          "name": "vault",
+          "docs": [
+            "The vault to be executed."
+          ],
+          "writable": true
+        },
+        {
+          "name": "signer",
+          "docs": [
+            "Any signer can trigger the execution once the veto period has passed."
+          ],
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize_vault",
+      "docs": [
+        "Initialize a new vault with configuration for inactivity threshold and veto period.",
+        "Inactivity threshold: time in days after which inheritance can be triggered.",
+        "Veto period: timeframe for the owner to cancel (veto) the process."
+      ],
+      "discriminator": [
+        48,
+        191,
+        163,
+        44,
+        71,
+        129,
+        63,
+        164
+      ],
+      "accounts": [
+        {
+          "name": "vault",
+          "docs": [
+            "The main vault account that stores configuration and state."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "beneficiary_list",
+          "docs": [
+            "A separate account to store the list of beneficiaries and their shares.",
+            "Separated to manage space and allow for potential list growth."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  101,
+                  110,
+                  101,
+                  102,
+                  105,
+                  99,
+                  105,
+                  97,
+                  114,
+                  105,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "vault"
+              }
+            ]
+          }
+        },
+        {
+          "name": "witness_registry",
+          "docs": [
+            "A separate account to store the list of witnesses and their confirmation status."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  105,
+                  116,
+                  110,
+                  101,
+                  115,
+                  115,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "vault"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner",
+          "docs": [
+            "The owner who pays for account creation and controls the vault."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "inactivity_threshold_days",
+          "type": "u16"
+        },
+        {
+          "name": "veto_period_days",
+          "type": "u16"
+        },
+        {
+          "name": "witness_threshold",
+          "type": "u8"
+        },
+        {
+          "name": "beneficiaries",
+          "type": {
+            "vec": {
+              "defined": {
+                "name": "BeneficiaryEntry"
+              }
+            }
+          }
+        },
+        {
+          "name": "witnesses",
+          "type": {
+            "vec": "pubkey"
+          }
+        }
+      ]
+    },
+    {
+      "name": "ping_alive",
+      "docs": [
+        "Owner pings the vault to reset the inactivity timer."
+      ],
+      "discriminator": [
+        42,
+        149,
+        81,
+        105,
+        173,
+        157,
+        98,
+        81
+      ],
+      "accounts": [
+        {
+          "name": "vault",
+          "writable": true
+        },
+        {
+          "name": "owner",
+          "signer": true,
+          "relations": [
+            "vault"
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "ping_alive_session",
+      "docs": [
+        "Authorized session key pings the vault to reset the inactivity timer."
+      ],
+      "discriminator": [
+        36,
+        242,
+        99,
+        248,
+        226,
+        105,
+        14,
+        73
+      ],
+      "accounts": [
+        {
+          "name": "vault",
+          "writable": true
+        },
+        {
+          "name": "session_key",
+          "signer": true,
+          "relations": [
+            "vault"
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "revoke_session_key",
+      "docs": [
+        "Removes the current session key."
+      ],
+      "discriminator": [
+        81,
+        192,
+        32,
+        110,
+        104,
+        116,
+        144,
+        151
+      ],
+      "accounts": [
+        {
+          "name": "vault",
+          "writable": true
+        },
+        {
+          "name": "owner",
+          "signer": true,
+          "relations": [
+            "vault"
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_config",
+      "docs": [
+        "Update the configuration of an existing vault. Only the owner can call this."
+      ],
+      "discriminator": [
+        29,
+        158,
+        252,
+        191,
+        10,
+        83,
+        219,
+        99
+      ],
+      "accounts": [
+        {
+          "name": "vault",
+          "docs": [
+            "The vault being updated. Must be owned by the signer."
+          ],
+          "writable": true
+        },
+        {
+          "name": "beneficiary_list",
+          "docs": [
+            "The associated beneficiary list."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  101,
+                  110,
+                  101,
+                  102,
+                  105,
+                  99,
+                  105,
+                  97,
+                  114,
+                  105,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "vault"
+              }
+            ]
+          }
+        },
+        {
+          "name": "witness_registry",
+          "docs": [
+            "The associated witness registry."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  105,
+                  116,
+                  110,
+                  101,
+                  115,
+                  115,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "vault"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner",
+          "docs": [
+            "The owner's signature is required to authorize changes."
+          ],
+          "signer": true,
+          "relations": [
+            "vault"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "inactivity_threshold_days",
+          "type": {
+            "option": "u16"
+          }
+        },
+        {
+          "name": "veto_period_days",
+          "type": {
+            "option": "u16"
+          }
+        },
+        {
+          "name": "witness_threshold",
+          "type": {
+            "option": "u8"
+          }
+        },
+        {
+          "name": "beneficiaries",
+          "type": {
+            "option": {
+              "vec": {
+                "defined": {
+                  "name": "BeneficiaryEntry"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "witnesses",
+          "type": {
+            "option": {
+              "vec": "pubkey"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "veto",
+      "docs": [
+        "Owner or session key cancels the inheritance process during the veto period."
+      ],
+      "discriminator": [
+        190,
+        152,
+        69,
+        226,
+        61,
+        150,
+        107,
+        215
+      ],
+      "accounts": [
+        {
+          "name": "vault",
+          "docs": [
+            "The vault account being vetoed."
+          ],
+          "writable": true
+        },
+        {
+          "name": "witness_registry",
+          "docs": [
+            "The witness registry associated with the vault, needs to be reset on veto."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  105,
+                  116,
+                  110,
+                  101,
+                  115,
+                  115,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "vault"
+              }
+            ]
+          }
+        },
+        {
+          "name": "signer",
+          "docs": [
+            "The signer must be either the vault owner or the designated session key."
+          ],
+          "signer": true
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "BeneficiaryList",
+      "discriminator": [
+        108,
+        99,
+        165,
+        13,
+        225,
+        127,
+        232,
+        206
+      ]
+    },
+    {
+      "name": "LegacyVault",
+      "discriminator": [
+        55,
+        178,
+        26,
+        223,
+        140,
+        240,
+        80,
+        29
+      ]
+    },
+    {
+      "name": "WitnessRegistry",
+      "discriminator": [
+        250,
+        77,
+        70,
+        25,
+        159,
+        132,
+        209,
+        54
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "BeneficiaryListUpdated",
+      "discriminator": [
+        41,
+        80,
+        195,
+        131,
+        178,
+        238,
+        38,
+        86
+      ]
+    },
+    {
+      "name": "InactivityConfirmed",
+      "discriminator": [
+        147,
+        94,
+        144,
+        178,
+        252,
+        146,
+        88,
+        129
+      ]
+    },
+    {
+      "name": "InheritanceExecuted",
+      "discriminator": [
+        6,
+        151,
+        37,
+        238,
+        95,
+        159,
+        178,
+        252
+      ]
+    },
+    {
+      "name": "PingRecorded",
+      "discriminator": [
+        25,
+        124,
+        63,
+        162,
+        150,
+        145,
+        203,
+        177
+      ]
+    },
+    {
+      "name": "ProcessCancelled",
+      "discriminator": [
+        251,
+        11,
+        193,
+        146,
+        166,
+        138,
+        223,
+        61
+      ]
+    },
+    {
+      "name": "SessionKeyAdded",
+      "discriminator": [
+        48,
+        232,
+        219,
+        242,
+        191,
+        77,
+        185,
+        246
+      ]
+    },
+    {
+      "name": "SessionKeyRevoked",
+      "discriminator": [
+        18,
+        208,
+        143,
+        205,
+        85,
+        72,
+        180,
+        176
+      ]
+    },
+    {
+      "name": "SolClaimed",
+      "discriminator": [
+        112,
+        80,
+        238,
+        167,
+        120,
+        101,
+        47,
+        207
+      ]
+    },
+    {
+      "name": "TransferExecuted",
+      "discriminator": [
+        8,
+        128,
+        224,
+        132,
+        112,
+        216,
+        192,
+        35
+      ]
+    },
+    {
+      "name": "VaultConfigUpdated",
+      "discriminator": [
+        72,
+        22,
+        37,
+        111,
+        58,
+        30,
+        160,
+        212
+      ]
+    },
+    {
+      "name": "VaultInitialized",
+      "discriminator": [
+        180,
+        43,
+        207,
+        2,
+        18,
+        71,
+        3,
+        75
+      ]
+    },
+    {
+      "name": "VetoExecuted",
+      "discriminator": [
+        176,
+        177,
+        23,
+        70,
+        74,
+        213,
+        68,
+        76
+      ]
+    },
+    {
+      "name": "VetoPeriodStarted",
+      "discriminator": [
+        114,
+        99,
+        130,
+        136,
+        115,
+        218,
+        40,
+        19
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "NotActive",
+      "msg": "Vault is not active."
+    },
+    {
+      "code": 6001,
+      "name": "NotInVetoPeriod",
+      "msg": "Vault is not in veto period."
+    },
+    {
+      "code": 6002,
+      "name": "NotInWitnessVoting",
+      "msg": "Vault is not in witness voting status."
+    },
+    {
+      "code": 6003,
+      "name": "NotExecuted",
+      "msg": "Vault is not executed."
+    },
+    {
+      "code": 6004,
+      "name": "Unauthorized",
+      "msg": "Unauthorized access."
+    },
+    {
+      "code": 6005,
+      "name": "MissingSessionKey",
+      "msg": "Missing session key."
+    },
+    {
+      "code": 6006,
+      "name": "PingTooFrequent",
+      "msg": "Time since last ping is too short."
+    },
+    {
+      "code": 6007,
+      "name": "ThresholdNotReached",
+      "msg": "Inactivity threshold not reached."
+    },
+    {
+      "code": 6008,
+      "name": "VetoDeadlineNotPassed",
+      "msg": "Veto deadline has not passed yet."
+    },
+    {
+      "code": 6009,
+      "name": "VetoDeadlinePassed",
+      "msg": "Veto deadline has already passed."
+    },
+    {
+      "code": 6010,
+      "name": "InvalidShares",
+      "msg": "Total beneficiary shares must equal 10000 basis points."
+    },
+    {
+      "code": 6011,
+      "name": "InvalidWitnessThreshold",
+      "msg": "Witness threshold must be less than or equal to number of witnesses."
+    },
+    {
+      "code": 6012,
+      "name": "SolAlreadyClaimed",
+      "msg": "Beneficiary has already claimed SOL."
+    },
+    {
+      "code": 6013,
+      "name": "WitnessAlreadyConfirmed",
+      "msg": "Witness has already confirmed."
+    },
+    {
+      "code": 6014,
+      "name": "WitnessNotFound",
+      "msg": "Witness not found in registry."
+    }
+  ],
+  "types": [
+    {
+      "name": "BeneficiaryEntry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pubkey",
+            "type": "pubkey"
+          },
+          {
+            "name": "share_bps",
+            "type": "u16"
+          },
+          {
+            "name": "sol_claimed",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BeneficiaryList",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "entries",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "BeneficiaryEntry"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "BeneficiaryListUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "InactivityConfirmed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "witness",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "InheritanceExecuted",
+      "docs": [
+        "Emitted when the inheritance process is finalized after the veto period."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LegacyVault",
+      "docs": [
+        "The main state account for a Legacy Vault."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "docs": [
+              "The original owner of the vault."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "session_key",
+            "docs": [
+              "An optional secondary key that can ping the vault or execute a veto."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "last_ping_ts",
+            "docs": [
+              "The Unix timestamp of the last activity (ping or initialization)."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "inactivity_threshold_days",
+            "docs": [
+              "Number of days of inactivity required before witnesses can start voting."
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "veto_period_days",
+            "docs": [
+              "Number of days the owner has to veto the process once witnesses confirm inactivity."
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "witness_threshold",
+            "docs": [
+              "Minimum number of witness confirmations required to enter the Veto Period."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "witnesses_confirmed",
+            "docs": [
+              "Number of witnesses who have already confirmed the current inactivity cycle."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "status",
+            "docs": [
+              "Current state of the vault."
+            ],
+            "type": {
+              "defined": {
+                "name": "VaultStatus"
+              }
+            }
+          },
+          {
+            "name": "veto_deadline",
+            "docs": [
+              "The timestamp after which inheritance can be executed (end of veto period)."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump for the vault account."
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PingRecorded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "source",
+            "type": {
+              "defined": {
+                "name": "PingSource"
+              }
+            }
+          },
+          {
+            "name": "days_to_threshold",
+            "type": "i64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PingSource",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Owner"
+          },
+          {
+            "name": "SessionKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProcessCancelled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "time_remaining_secs",
+            "type": "i64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SessionKeyAdded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "session_key",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SessionKeyRevoked",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SolClaimed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "beneficiary",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TransferExecuted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VaultConfigUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VaultInitialized",
+      "docs": [
+        "Emitted when a new vault is successfully created."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VaultStatus",
+      "docs": [
+        "Represents the lifecycle stages of a vault."
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Active"
+          },
+          {
+            "name": "WitnessVoting"
+          },
+          {
+            "name": "VetoPeriod"
+          },
+          {
+            "name": "Executed"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VetoExecuted",
+      "docs": [
+        "Emitted when the owner or session key vetoes the inheritance process."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VetoPeriodStarted",
+      "docs": [
+        "Emitted when enough witnesses have confirmed inactivity and the veto period begins."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "veto_deadline",
+            "type": "i64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WitnessEntry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pubkey",
+            "type": "pubkey"
+          },
+          {
+            "name": "confirmed",
+            "type": "bool"
+          },
+          {
+            "name": "confirmed_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WitnessRegistry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "entries",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "WitnessEntry"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

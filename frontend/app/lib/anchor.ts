@@ -9,7 +9,7 @@ export const LEGACY_LOCK_PROGRAM_ID = new PublicKey("J8k4XDzw1yKwXg2kKmL6Px1WzTJ
 
 // Jeśli posiadasz IDL z Coral/Anchor mozesz uzyc prawdziwego IDL. Tutaj uzywamy any jako placeholder:
 export function getLegacyLockProgram(provider: AnchorProvider, idlRaw: any) {
-    return new Program(idlRaw as Idl, provider);
+    return new Program(idlRaw as any, provider);
 }
 
 export function getVaultPDA(owner: PublicKey) {
