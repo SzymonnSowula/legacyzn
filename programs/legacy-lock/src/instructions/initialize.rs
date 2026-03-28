@@ -5,6 +5,7 @@ use crate::events::{VaultInitialized, VaultConfigUpdated, BeneficiaryListUpdated
 
 #[derive(Accounts)]
 pub struct InitializeVault<'info> {
+    /// The main vault account that stores configuration and state.
     #[account(
         init,
         payer = owner,
@@ -14,6 +15,8 @@ pub struct InitializeVault<'info> {
     )]
     pub vault: Account<'info, LegacyVault>,
 
+    /// A separate account to store the list of beneficiaries and their shares.
+    /// Separated to manage space and allow for potential list growth.
     #[account(
         init,
         payer = owner,
@@ -23,6 +26,7 @@ pub struct InitializeVault<'info> {
     )]
     pub beneficiary_list: Account<'info, BeneficiaryList>,
 
+    /// A separate account to store the list of witnesses and their confirmation status.
     #[account(
         init,
         payer = owner,
@@ -32,6 +36,7 @@ pub struct InitializeVault<'info> {
     )]
     pub witness_registry: Account<'info, WitnessRegistry>,
 
+    /// The owner who pays for account creation and controls the vault.
     #[account(mut)]
     pub owner: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -87,12 +92,14 @@ pub fn initialize_vault(
 
 #[derive(Accounts)]
 pub struct UpdateConfig<'info> {
+    /// The vault being updated. Must be owned by the signer.
     #[account(
         mut,
         has_one = owner,
     )]
     pub vault: Account<'info, LegacyVault>,
     
+    /// The associated beneficiary list.
     #[account(
         mut,
         seeds = [BeneficiaryList::SEED_PREFIX, vault.key().as_ref()],
@@ -100,6 +107,7 @@ pub struct UpdateConfig<'info> {
     )]
     pub beneficiary_list: Account<'info, BeneficiaryList>,
 
+    /// The associated witness registry.
     #[account(
         mut,
         seeds = [WitnessRegistry::SEED_PREFIX, vault.key().as_ref()],
@@ -107,6 +115,7 @@ pub struct UpdateConfig<'info> {
     )]
     pub witness_registry: Account<'info, WitnessRegistry>,
 
+    /// The owner's signature is required to authorize changes.
     pub owner: Signer<'info>,
 }
 

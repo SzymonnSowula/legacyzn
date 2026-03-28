@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
 
+/// Emitted when a new vault is successfully created.
 #[event]
 pub struct VaultInitialized {
     pub vault: Pubkey,
@@ -53,10 +54,27 @@ pub struct InactivityConfirmed {
     pub timestamp: i64,
 }
 
+/// Emitted when enough witnesses have confirmed inactivity and the veto period begins.
 #[event]
 pub struct VetoPeriodStarted {
     pub vault: Pubkey,
     pub veto_deadline: i64,
+    pub timestamp: i64,
+}
+
+/// Emitted when the owner or session key vetoes the inheritance process.
+#[event]
+pub struct VetoExecuted {
+    pub vault: Pubkey,
+    pub owner: Pubkey,
+    pub timestamp: i64,
+}
+
+/// Emitted when the inheritance process is finalized after the veto period.
+#[event]
+pub struct InheritanceExecuted {
+    pub vault: Pubkey,
+    pub owner: Pubkey,
     pub timestamp: i64,
 }
 

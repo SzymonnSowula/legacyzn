@@ -1,29 +1,44 @@
 use anchor_lang::prelude::*;
 use crate::state::*;
 use crate::errors::LegacyError;
-use crate::events::{TransferExecuted, SolClaimed};
+use crate::events::{InheritanceExecuted, SolClaimed};
 
 #[derive(Accounts)]
-pub struct ExecuteTransfer<'info> {
+pub struct ExecuteInheritance<'info> {
+    /// The vault to be executed.
     #[account(mut)]
     pub vault: Account<'info, LegacyVault>,
+    /// Any signer can trigger the execution once the veto period has passed.
     pub signer: Signer<'info>,
 }
 
-pub fn execute_transfer(ctx: Context<ExecuteTransfer>) -> Result<()> {
+/// Executes the inheritance process.
+/// This can be called by anyone after the VetoPeriod has passed (now > veto_deadline).
+/// It sets the vault status to Executed, allowing beneficiaries to claim their shares.
+pub fn execute_inheritance(ctx: Context<ExecuteInheritance>) -> Result<()> {
     let vault = &mut ctx.accounts.vault;
-    require!(vault.status == VaultStatus::VetoPeriod, LegacyError::NotInVetoPeriod);
+
+    // 1. Wymagany status: VetoPeriod.
+    require!(
+        vault.status == VaultStatus::VetoPeriod, 
+        LegacyError::NotInVetoPeriod
+    );
 
     let clock = Clock::get()?;
+
+    // 2. Sprawdzenie czy okres veto minął.
     require!(
         vault.is_veto_deadline_passed(clock.unix_timestamp),
         LegacyError::VetoDeadlineNotPassed
     );
 
+    // 3. Ustawienie statusu na Executed.
     vault.status = VaultStatus::Executed;
 
-    emit!(TransferExecuted {
+    // 4. Emisja zdarzenia InheritanceExecuted.
+    emit!(InheritanceExecuted {
         vault: vault.key(),
+        owner: vault.owner,
         timestamp: clock.unix_timestamp,
     });
 
