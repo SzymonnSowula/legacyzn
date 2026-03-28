@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 // To jest tylko bazowy wpis / zalążek dla programu Token-2022 Transfer Hook.
 // Prawdziwa implementacja dojdzie w następnych krokach (wymaga dopięcia Token2022 z Anchor).
 
-declare_id!("Hook111111111111111111111111111111111111111");
+declare_id!("EP1HPZqUhFsLCXWLR9rzfXYr8KMEQTnEafHjBxf1FyYP");
 
 #[program]
 pub mod legacy_lock_hook {

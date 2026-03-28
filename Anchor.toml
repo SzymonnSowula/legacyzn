@@ -6,13 +6,17 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-legacy_lock = "B4QKvj7amSGWUKeiGvkfHBsEEfycR7MoDFgowmYKEebw"
+legacy_lock = "J8k4XDzw1yKwXg2kKmL6Px1WzTJ4qfKKWEehfyDLRjSy"
+legacy_lock_hook = "EP1HPZqUhFsLCXWLR9rzfXYr8KMEQTnEafHjBxf1FyYP"
+[programs.devnet]
+legacy_lock = "J8k4XDzw1yKwXg2kKmL6Px1WzTJ4qfKKWEehfyDLRjSy"
+legacy_lock_hook = "EP1HPZqUhFsLCXWLR9rzfXYr8KMEQTnEafHjBxf1FyYP"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
