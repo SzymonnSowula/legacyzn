@@ -89,10 +89,7 @@ pub mod legacy_lock_program {
         instructions::execute_inheritance(ctx)
     }
 
-    /// Beneficiaries call this to withdraw their share of SOL from an executed vault.
-    pub fn claim_sol(ctx: Context<ClaimSol>, beneficiary_index: u8) -> Result<()> {
-        instructions::claim_sol(ctx, beneficiary_index)
-    }
+
 
     /// Automatically transfers Token-2022 assets to a beneficiary if the heartbeat threshold is passed.
     /// Uses the Permanent Delegate extension.
