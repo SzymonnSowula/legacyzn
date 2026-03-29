@@ -20,7 +20,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-    title: 'LEGACY LOCK // SECURE YOUR HERITAGE',
+    title: 'LegacyZN',
     description: 'Decentralized Inheritance Protocol. Automated. Secure. Immutable.',
 };
 

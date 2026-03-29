@@ -5,6 +5,7 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { LayoutDashboard, Wallet, ShieldCheck, History, Menu, X, ChevronRight } from "lucide-react";
 
@@ -46,7 +47,10 @@ export default function DashboardLayout({
                 className={`${isSidebarOpen ? 'w-72' : 'w-20'} hidden md:flex flex-col border-r border-white/10 bg-[#0a0a0c]/60 backdrop-blur-3xl transition-all duration-500 ease-[0.16, 1, 0.3, 1] z-50 font-mono`}
             >
                 <div className="p-8 flex items-center gap-3">
-                    {isSidebarOpen && <span className="text-[16px] font-display font-bold tracking-tighter uppercase text-white">Legacy<span className="text-purple-500">ZN</span> &nbsp; -_-</span>}
+                    <div className="relative w-4 h-4 shrink-0">
+                        <Image src="/sol.png" alt="Solana" fill className="object-contain" />
+                    </div>
+                    {isSidebarOpen && <span className="text-[14px] font-display font-bold tracking-tighter uppercase text-white">Legacy<span className="text-white/40 font-light">ZN</span></span>}
                 </div>
 
                 <nav className="flex-1 px-4 space-y-2">
@@ -70,10 +74,12 @@ export default function DashboardLayout({
 
                 <div className="p-8 border-t border-white/10 space-y-4">
                     <div className={`flex flex-col ${!isSidebarOpen && 'items-center'}`}>
-                        <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold font-mono">Network</span>
+                        <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold font-mono">Protocol Status</span>
                         <div className="flex items-center gap-2 mt-2">
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse"></div>
-                            {isSidebarOpen && <span className="text-[10px] text-white/70 font-bold uppercase tracking-widest font-mono">Solana Devnet</span>}
+                            <div className="relative w-3 h-3">
+                                <Image src="/sol.png" alt="Solana" fill className="object-contain animate-pulse" />
+                            </div>
+                            {isSidebarOpen && <span className="text-[10px] text-white/70 font-bold uppercase tracking-widest font-mono">Mainnet-Beta</span>}
                         </div>
                     </div>
                 </div>
