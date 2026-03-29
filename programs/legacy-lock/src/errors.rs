@@ -30,8 +30,6 @@ pub enum LegacyError {
     #[msg("Witness threshold must be less than or equal to number of witnesses.")]
     InvalidWitnessThreshold,
 
-    #[msg("Beneficiary has already claimed SOL.")]
-    SolAlreadyClaimed,
     #[msg("Witness has already confirmed.")]
     WitnessAlreadyConfirmed,
     #[msg("Witness not found in registry.")]
@@ -45,4 +43,8 @@ pub enum LegacyError {
 
     #[msg("Source account has no tokens to transfer.")]
     NoTokensToTransfer,
+    #[msg("Invalid token mint for this vault.")]
+    InvalidMint,
+    #[msg("Token account does not belong to the vault owner.")]
+    InvalidTokenOwner,
 }

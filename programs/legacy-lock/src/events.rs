@@ -92,9 +92,10 @@ pub struct TransferExecuted {
 }
 
 #[event]
-pub struct SolClaimed {
+pub struct TokenInheritanceExecuted {
     pub vault: Pubkey,
-    pub beneficiary: Pubkey,
+    pub claimant: Pubkey,
+    pub mint: Pubkey,
     pub amount: u64,
     pub timestamp: i64,
 }

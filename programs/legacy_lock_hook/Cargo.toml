@@ -20,7 +20,7 @@ anchor-lang = { version = "0.30.1" }
 anchor-spl = { version = "0.30.1" }
 spl-transfer-hook-interface = "0.4.0"
 spl-tlv-account-resolution = "0.4.0"
-spl-token-2022 = "=1.0.12"
+# Removed spl-token-2022 to fix conflict
 legacy-lock-common = { path = "../legacy-lock-common" }
 [lints.rust]
 unexpected_cfgs = { level = "allow", check-cfg = ['cfg(target_os, values("solana"))'] }

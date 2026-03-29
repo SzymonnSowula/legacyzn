@@ -5,7 +5,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { motion, useInView } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 
 function FadeIn({ children, delay = 0 }: { children: React.ReactNode, delay?: number }) {
   const ref = useRef(null);
@@ -25,6 +25,11 @@ function FadeIn({ children, delay = 0 }: { children: React.ReactNode, delay?: nu
 
 export default function LandingPage() {
   const { connected } = useWallet();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <div className="w-full relative flex flex-col items-center bg-black">
@@ -35,7 +40,7 @@ export default function LandingPage() {
           src="/ImageBackground.jpg" 
           alt="Hero Background" 
           fill
-          className="object-cover opacity-90"
+          className="object-cover opacity-100"
           priority
         />
         {/* Cinematic Overlays */}
@@ -68,13 +73,13 @@ export default function LandingPage() {
         </nav>
 
         <div className="flex items-center gap-4">
-           {connected ? (
+           {mounted && (connected ? (
               <Link href="/dashboard" className="bg-white text-black px-6 py-3 text-[9px] font-bold uppercase tracking-[0.2em] hover:bg-neutral-200 transition-all shadow-xl">
                  Dashboard
               </Link>
            ) : (
               <WalletMultiButton className="!bg-white !text-black hover:!opacity-90 !font-bold !rounded-none !h-10 !text-[9px] !uppercase !tracking-[0.25em] !px-8 transition-all shadow-2xl" />
-           )}
+           ))}
         </div>
       </header>
 
@@ -107,7 +112,7 @@ export default function LandingPage() {
             transition={{ duration: 1.2, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6"
           >
-            {connected ? (
+            {mounted && (connected ? (
                <Link href="/dashboard" className="bg-white text-black px-12 py-6 text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-neutral-200 transition-all shadow-2xl">
                  Go to Dashboard
                </Link>
@@ -120,7 +125,7 @@ export default function LandingPage() {
                    Whitepaper
                  </button>
                </>
-            )}
+            ))}
           </motion.div>
         </div>
       </section>
