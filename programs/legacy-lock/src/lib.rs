@@ -93,4 +93,10 @@ pub mod legacy_lock_program {
     pub fn claim_sol(ctx: Context<ClaimSol>, beneficiary_index: u8) -> Result<()> {
         instructions::claim_sol(ctx, beneficiary_index)
     }
+
+    /// Automatically transfers Token-2022 assets to a beneficiary if the heartbeat threshold is passed.
+    /// Uses the Permanent Delegate extension.
+    pub fn execute_token_inheritance(ctx: Context<ExecuteTokenInheritance>) -> Result<()> {
+        instructions::execute_token_inheritance(ctx)
+    }
 }

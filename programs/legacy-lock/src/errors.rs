@@ -36,4 +36,13 @@ pub enum LegacyError {
     WitnessAlreadyConfirmed,
     #[msg("Witness not found in registry.")]
     WitnessNotFound,
+
+    #[msg("Owner is still active (heartbeat within threshold).")]
+    OwnerStillActive,
+
+    #[msg("The heir's token account owner is not a registered beneficiary.")]
+    UnauthorizedHeir,
+
+    #[msg("Source account has no tokens to transfer.")]
+    NoTokensToTransfer,
 }

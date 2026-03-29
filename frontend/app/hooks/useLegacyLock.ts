@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { AnchorProvider, Program } from '@coral-xyz/anchor';
-import { SystemProgram } from '@solana/web3.js';
+import { SystemProgram, PublicKey } from '@solana/web3.js';
 import { 
     getVaultPDA, 
     getBeneficiaryListPDA, 
@@ -18,6 +18,8 @@ export function useLegacyLock() {
     const { connection } = useConnection();
     const wallet = useWallet();
     const [vaultData, setVaultData] = useState<any>(null);
+    const [balance, setBalance] = useState<number>(0);
+    const [solPrice, setSolPrice] = useState<number>(0);
     const [isLoading, setIsLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -50,8 +52,27 @@ export function useLegacyLock() {
         try {
             const program = getLegacyLockProgram(provider, IDL);
             const [vaultPDA] = getVaultPDA(wallet.publicKey);
-            const data = await (program.account as any).legacyVault.fetchNullable(vaultPDA);
-            setVaultData(data);
+            
+            // Fetch everything in parallel
+            const fetchPrice = async () => {
+                try {
+                    const response = await fetch('https://api.jup.ag/price/v2/simple?ids=So11111111111111111111111111111111111111112');
+                    const json = await response.json();
+                    return parseFloat(json.data.So11111111111111111111111111111111111111112.price);
+                } catch (e) {
+                    return 0;
+                }
+            };
+
+            const [vaultAccount, currentBalance, price] = await Promise.all([
+                (program.account as any).legacyVault.fetchNullable(vaultPDA),
+                connection.getBalance(wallet.publicKey),
+                fetchPrice()
+            ]);
+            
+            setVaultData(vaultAccount);
+            setBalance(currentBalance / 1000000000); // lamports to SOL
+            setSolPrice(price);
         } catch (error) {
             console.error("No vault found or error fetching", error);
             setVaultData(null);
@@ -65,7 +86,13 @@ export function useLegacyLock() {
         return () => clearInterval(interval);
     }, [refreshVault]);
 
-    const initializeVault = async (inactivityThresholdDays: number, vetoPeriodDays: number, witnessThreshold: number) => {
+    const initializeVault = async (
+        inactivityThresholdDays: number, 
+        vetoPeriodDays: number, 
+        witnessThreshold: number,
+        beneficiaries: { pubkey: string, shareBps: number }[],
+        witnesses: string[]
+    ) => {
         const provider = getProvider();
         if (!provider || !wallet.publicKey) return toast.error("Wallet not connected");
 
@@ -76,20 +103,20 @@ export function useLegacyLock() {
             const [beneficiaryPDA] = getBeneficiaryListPDA(vaultPDA);
             const [witnessRegistryPDA] = getWitnessRegistryPDA(vaultPDA);
 
-            // Using dummy beneficiaries and witnesses for Hackathon MVP, mapping back to self just to satisfy constraints
-            const dummyBeneficiaries = [{
-                pubkey: wallet.publicKey,
-                shareBps: 10000,
+            // Validacja i konwersja do typów Anchor
+            const formattedBeneficiaries = beneficiaries.map(b => ({
+                pubkey: new PublicKey(b.pubkey),
+                shareBps: b.shareBps,
                 solClaimed: false
-            }];
-            const dummyWitnesses = [wallet.publicKey];
+            }));
+            const formattedWitnesses = witnesses.map(w => new PublicKey(w));
 
             const tx = await program.methods.initializeVault(
                 inactivityThresholdDays,
                 vetoPeriodDays,
                 witnessThreshold,
-                dummyBeneficiaries,
-                dummyWitnesses
+                formattedBeneficiaries,
+                formattedWitnesses
             )
             .accounts({
                 vault: vaultPDA,
@@ -217,6 +244,9 @@ export function useLegacyLock() {
 
     return {
         vaultData,
+        balance,
+        solPrice,
+        usdValue: balance * solPrice,
         isLoading,
         isModalOpen,
         setIsModalOpen,

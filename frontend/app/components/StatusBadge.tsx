@@ -2,24 +2,24 @@ export default function StatusBadge({ status }: { status: any }) {
     if (!status) return null;
 
     let label = "Unknown";
-    let colorClass = "bg-neutral-800 text-neutral-300";
+    let colorClass = "bg-white/5 text-white/40 border-white/10";
 
     if (status.active) {
         label = "Active";
-        colorClass = "bg-green-500/20 text-green-400 border border-green-500/30";
+        colorClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
     } else if (status.witnessVoting) {
         label = "Witness Voting";
-        colorClass = "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30";
+        colorClass = "bg-yellow-500/10 text-yellow-400 border-yellow-500/20";
     } else if (status.vetoPeriod) {
         label = "Veto Period";
-        colorClass = "bg-orange-500/20 text-orange-400 border border-orange-500/30";
+        colorClass = "bg-orange-500/10 text-orange-400 border-orange-500/20";
     } else if (status.executed) {
         label = "Executed";
-        colorClass = "bg-neutral-800 text-neutral-400 border border-neutral-700";
+        colorClass = "bg-white/10 text-white/60 border-white/20";
     }
 
     return (
-        <span className={`px-3 py-1 text-xs font-semibold rounded-full ${colorClass}`}>
+        <span className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] italic border ${colorClass} rounded-none backdrop-blur-md`}>
             {label}
         </span>
     );

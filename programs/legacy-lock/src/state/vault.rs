@@ -22,6 +22,8 @@ pub struct LegacyVault {
     pub status: VaultStatus,
     /// The timestamp after which inheritance can be executed (end of veto period).
     pub veto_deadline: i64,
+    /// The total vault balance at the moment of inheritance execution.
+    pub total_locked_sol: u64,
     /// PDA bump for the vault account.
     pub bump: u8,
 }

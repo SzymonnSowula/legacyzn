@@ -1,7 +1,8 @@
 use anchor_lang::prelude::*;
+use anchor_spl::token_interface::{self, Mint, TokenAccount, TokenInterface, TransferChecked};
 use crate::state::*;
 use crate::errors::LegacyError;
-use crate::events::{InheritanceExecuted, SolClaimed};
+use crate::events::{InheritanceExecuted, SolClaimed, TokenInheritanceExecuted};
 
 #[derive(Accounts)]
 pub struct ExecuteInheritance<'info> {
@@ -16,6 +17,7 @@ pub struct ExecuteInheritance<'info> {
 /// This can be called by anyone after the VetoPeriod has passed (now > veto_deadline).
 /// It sets the vault status to Executed, allowing beneficiaries to claim their shares.
 pub fn execute_inheritance(ctx: Context<ExecuteInheritance>) -> Result<()> {
+    let current_lamports = ctx.accounts.vault.to_account_info().lamports();
     let vault = &mut ctx.accounts.vault;
 
     // 1. Wymagany status: VetoPeriod.
@@ -32,8 +34,9 @@ pub fn execute_inheritance(ctx: Context<ExecuteInheritance>) -> Result<()> {
         LegacyError::VetoDeadlineNotPassed
     );
 
-    // 3. Ustawienie statusu na Executed.
+    // 3. Ustawienie statusu na Executed i wykonanie snapshotu balansu.
     vault.status = VaultStatus::Executed;
+    vault.total_locked_sol = current_lamports;
 
     // 4. Emisja zdarzenia InheritanceExecuted.
     emit!(InheritanceExecuted {
@@ -80,15 +83,9 @@ pub fn claim_sol(ctx: Context<ClaimSol>, beneficiary_index: u8) -> Result<()> {
 
     entry.sol_claimed = true;
 
-    // Ponieważ działamy w systemie pull-over-push, korzystamy z faktu,
-    // że suma lamportów dla danego beneficjenta była snapshotowana albo wyliczana statycznie z totalSupply.
-    // Z uwagi na limitacje architektury bez zapisywania 'total_locked_sol' na etapie Executed,
-    // wykonujemy wyliczenie wprost: vault.lamports * share_bps / 10000. 
-    // Uwaga: w optymalizacji na minnet sugerowane jest snapshotowanie.
-    
-    // Hackhathon MVP rozwiązanie zgodne ze zleceniem:
-    let vault_balance = ctx.accounts.vault.to_account_info().lamports();
-    let payout = ((vault_balance as u128) * (entry.share_bps as u128) / 10000) as u64;
+    // Wyliczenie payout na podstawie zablokowanego snapshotu (total_locked_sol).
+    // Zapobiega to błędowi, w którym wypłata jednego beneficjenta pomniejsza bazę dla kolejnych.
+    let payout = ((vault.total_locked_sol as u128) * (entry.share_bps as u128) / 10000) as u64;
 
     ctx.accounts.vault.sub_lamports(payout)?;
     ctx.accounts.claimant.add_lamports(payout)?;

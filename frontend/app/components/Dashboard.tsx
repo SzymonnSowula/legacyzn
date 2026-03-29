@@ -2,11 +2,11 @@
 
 import { useLegacyLock } from "../hooks/useLegacyLock";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import StatusBadge from "./StatusBadge";
 import { useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { Clock, Users, ArrowRight, ShieldAlert } from "lucide-react";
 
 export default function Dashboard() {
     const { publicKey } = useWallet();
@@ -46,66 +46,86 @@ export default function Dashboard() {
     const confirmationProgress = (vaultData.witnessesConfirmed / vaultData.witnessThreshold) * 100;
 
     return (
-        <Card className="w-full relative overflow-hidden bg-black/40 border border-[#14F195]/20 backdrop-blur-xl shadow-[0_0_40px_rgba(20,241,149,0.05)] rounded-2xl">
-            {/* Ambient inner glow */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#14F195]/5 blur-[80px] rounded-full pointer-events-none" />
+        <div className="w-full relative overflow-hidden bg-neutral-950/40 border border-white/5 backdrop-blur-3xl p-10 space-y-12">
             
-            <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-white/5 bg-white/[0.02]">
+            <header className="flex flex-row items-center justify-between">
                 <div className="space-y-1">
-                    <CardTitle className="text-2xl font-bold text-white flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-[#14F195] animate-pulse shadow-[0_0_8px_#14F195]"></span>
-                        Vault Overview
-                    </CardTitle>
-                    <CardDescription className="text-neutral-400">Manage and monitor your legacy lock</CardDescription>
+                    <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic flex items-center gap-3">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)] animate-pulse"></div>
+                        Security Protocol
+                    </h3>
+                    <p className="text-white/20 text-[9px] uppercase tracking-[0.3em] font-black">Active Legacy Vault Monitoring</p>
                 </div>
                 <StatusBadge status={vaultData.status} />
-            </CardHeader>
-            <CardContent className="space-y-6 mt-6 relative z-10">
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white/5 rounded-xl p-5 border border-white/10 backdrop-blur-sm transition-all hover:bg-white/[0.07]">
-                        <p className="text-sm font-medium text-[#14F195] mb-1 opacity-80 uppercase tracking-wider">Last Ping</p>
-                        <p className="font-bold text-2xl text-white tracking-tight">{vaultData.status.vetoPeriod ? "N/A" : timeLeft}</p>
+            </header>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Timer Area */}
+                <div className={`p-8 border ${vaultData.status.vetoPeriod ? 'bg-rose-500/5 border-rose-500/20' : 'bg-white/[0.02] border-white/5'} transition-all`}>
+                    <div className="flex items-center gap-3 mb-4">
+                        <Clock className="w-3.5 h-3.5 text-white/30" />
+                        <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.4em] italic">Last Observed Activity</span>
                     </div>
+                    <p className={`font-black text-4xl tracking-tighter uppercase italic ${vaultData.status.vetoPeriod ? 'text-rose-400' : 'text-white'}`}>
+                        {vaultData.status.vetoPeriod ? "LOCKED" : timeLeft}
+                    </p>
                     {vaultData.status.vetoPeriod && (
-                        <div className="bg-orange-500/10 rounded-xl p-5 border border-orange-500/20 backdrop-blur-sm shadow-[0_0_20px_rgba(249,115,22,0.1)]">
-                            <p className="text-sm font-medium text-orange-400 mb-1 uppercase tracking-wider">Veto Deadline</p>
-                            <p className="font-bold text-2xl text-orange-300 tracking-tight">{timeLeft}</p>
+                        <p className="text-[10px] text-rose-500/60 font-black mt-2 uppercase tracking-[0.2em] italic">Veto Period Active</p>
+                    )}
+                </div>
+
+                {/* Veto Area */}
+                {vaultData.status.vetoPeriod && (
+                    <div className="p-8 bg-neutral-900 border border-white/10 shadow-2xl relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/5 blur-3xl rounded-full" />
+                        <div className="flex items-center gap-3 mb-4">
+                            <ShieldAlert className="w-3.5 h-3.5 text-rose-500" />
+                            <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.4em] italic">Veto Expiry</span>
                         </div>
-                    )}
-                </div>
-
-                <div className="bg-white/5 rounded-xl p-5 border border-white/10 backdrop-blur-sm">
-                    <div className="flex justify-between text-sm mb-3">
-                        <span className="text-neutral-400 font-medium">Witness Confirmations</span>
-                        <span className="font-bold text-[#14F195]">{vaultData.witnessesConfirmed} <span className="text-neutral-500">/ {vaultData.witnessThreshold}</span></span>
+                        <p className="font-black text-4xl text-rose-500 tracking-tighter uppercase italic">{timeLeft}</p>
                     </div>
-                    <Progress value={confirmationProgress} className="h-2 bg-neutral-800 [&>div]:bg-gradient-to-r [&>div]:from-[#14F195] [&>div]:to-[#9945FF]" />
-                </div>
+                )}
 
-                <div className="flex flex-wrap gap-4 pt-6 border-t border-white/5">
-                    {vaultData.status.active && isOwner && (
-                        <Button onClick={pingAlive} disabled={isLoading} className="flex-1 bg-[#14F195]/10 text-[#14F195] border border-[#14F195]/30 hover:bg-[#14F195]/20 hover:text-[#14F195] hover:shadow-[0_0_15px_rgba(20,241,149,0.2)] transition-all font-bold h-12 text-md rounded-xl">
-                            Ping Alive (Reset Timer)
-                        </Button>
-                    )}
-                    {vaultData.status.active && !isOwner && (
-                        <Button variant="secondary" onClick={confirmInactivity} disabled={isLoading} className="flex-1 bg-white/5 border border-white/10 text-white hover:bg-white/10 h-12 text-md rounded-xl font-medium">Verify Inactivity</Button>
-                    )}
-                    {vaultData.status.witnessVoting && !isOwner && (
-                        <Button variant="secondary" onClick={confirmInactivity} disabled={isLoading} className="flex-1 bg-[#14F195]/10 text-[#14F195] border border-[#14F195]/30 hover:bg-[#14F195]/20 hover:shadow-[0_0_15px_rgba(20,241,149,0.2)] h-12 text-md rounded-xl font-bold">Vote Inactive</Button>
-                    )}
-                    {vaultData.status.vetoPeriod && isOwner && (
-                        <Button variant="destructive" onClick={ownerCancelVeto} disabled={isLoading} className="flex-1 bg-red-500/10 text-red-500 border border-red-500/30 hover:bg-red-500/20 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] h-12 text-md rounded-xl font-bold">
-                            Veto (Cancel Transfer)
-                        </Button>
-                    )}
-                    {vaultData.status.vetoPeriod && !isOwner && timeLeft === "Deadline Passed" && (
-                         <Button onClick={executeInheritance} disabled={isLoading} className="flex-1 bg-gradient-to-r from-[#14F195] to-[#9945FF] text-white hover:opacity-90 shadow-[0_0_20px_rgba(20,241,149,0.3)] h-12 text-md rounded-xl font-bold border-none">
-                             Execute Inheritance
-                         </Button>
-                    )}
-                </div>
-            </CardContent>
-        </Card>
+                {/* Confirmations Area (if not veto period) */}
+                {!vaultData.status.vetoPeriod && (
+                    <div className="p-8 bg-white/[0.02] border border-white/5 space-y-6">
+                        <div className="flex justify-between items-end">
+                            <div className="flex items-center gap-3">
+                               <Users className="w-3.5 h-3.5 text-white/30" />
+                               <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.4em] italic">Witness Registry</span>
+                            </div>
+                            <span className="text-xl font-black text-white italic tracking-tighter uppercase">{vaultData.witnessesConfirmed} <span className="text-white/20 text-xs">/ {vaultData.witnessThreshold}</span></span>
+                        </div>
+                        <Progress value={confirmationProgress} className="h-[2px] bg-white/5 [&>div]:bg-white rounded-none" />
+                    </div>
+                )}
+            </div>
+
+            {/* Actions */}
+            <footer className="flex flex-wrap gap-4 pt-4">
+                {vaultData.status.active && isOwner && (
+                    <Button onClick={pingAlive} disabled={isLoading} className="flex-1 bg-white text-black hover:bg-neutral-200 transition-all font-black h-16 text-[10px] uppercase tracking-[0.4em] rounded-none shadow-2xl italic group">
+                        Confirm Presence
+                        <ArrowRight className="w-3 h-3 ml-3 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                )}
+                {vaultData.status.active && !isOwner && (
+                    <Button variant="outline" onClick={confirmInactivity} disabled={isLoading} className="flex-1 bg-transparent border-white/10 text-white/40 hover:text-white hover:bg-white/5 h-16 text-[10px] uppercase tracking-[0.3em] rounded-none font-black italic">Report Inactivity</Button>
+                )}
+                {vaultData.status.witnessVoting && !isOwner && (
+                    <Button onClick={confirmInactivity} disabled={isLoading} className="flex-1 bg-white text-black hover:bg-neutral-200 h-16 text-[10px] uppercase tracking-[0.4em] rounded-none font-black shadow-2xl italic">Certify Absence</Button>
+                )}
+                {vaultData.status.vetoPeriod && isOwner && (
+                    <Button onClick={ownerCancelVeto} disabled={isLoading} className="flex-1 bg-rose-600 text-white hover:bg-rose-700 h-16 text-[10px] uppercase tracking-[0.4em] rounded-none font-black shadow-2xl italic">
+                        Cancel Protocol Execution
+                    </Button>
+                )}
+                {vaultData.status.vetoPeriod && !isOwner && timeLeft === "Deadline Passed" && (
+                    <Button onClick={executeInheritance} disabled={isLoading} className="flex-1 bg-white text-black hover:bg-neutral-200 h-16 text-[10px] uppercase tracking-[0.4em] rounded-none font-black shadow-2xl italic">
+                        Finalize Legacy Transfer
+                    </Button>
+                )}
+            </footer>
+        </div>
     );
 }

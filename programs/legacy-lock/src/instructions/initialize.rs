@@ -64,6 +64,7 @@ pub fn initialize_vault(
     vault.witnesses_confirmed = 0;
     vault.status = VaultStatus::Active;
     vault.veto_deadline = 0;
+    vault.total_locked_sol = 0;
     vault.bump = ctx.bumps.vault;
 
     let beneficiary_list = &mut ctx.accounts.beneficiary_list;
