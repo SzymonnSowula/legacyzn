@@ -1,4 +1,4 @@
-export default function StatusBadge({ status }: { status: any }) {
+export default function StatusBadge({ status }: { status: Record<string, boolean> }) {
     if (!status) return null;
 
     let label = "Unknown";
@@ -19,7 +19,7 @@ export default function StatusBadge({ status }: { status: any }) {
     }
 
     return (
-        <span className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] italic border ${colorClass} rounded-none backdrop-blur-md`}>
+        <span className={`px-4 py-1.5 text-[9px] font-mono font-bold uppercase tracking-widest border ${colorClass} rounded-full backdrop-blur-md`}>
             {label}
         </span>
     );

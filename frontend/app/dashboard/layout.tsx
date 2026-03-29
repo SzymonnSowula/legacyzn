@@ -34,68 +34,68 @@ export default function DashboardLayout({
     ];
 
     return (
-        <div className="min-h-screen bg-black text-white flex">
+        <div className="min-h-screen bg-[#0a0a0c] text-white flex relative overflow-hidden">
+            {/* Background ambient glow */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+                <div className="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] bg-blue-500/10 blur-[120px] rounded-full mix-blend-screen" />
+                <div className="absolute bottom-[0%] -left-[10%] w-[40%] h-[40%] bg-violet-500/10 blur-[100px] rounded-full mix-blend-screen" />
+            </div>
+
             {/* 1. SIDEBAR */}
-            <aside 
-                 className={`${isSidebarOpen ? 'w-72' : 'w-20'} hidden md:flex flex-col border-r border-white/5 bg-neutral-950/20 backdrop-blur-3xl transition-all duration-500 ease-[0.16, 1, 0.3, 1] z-50`}
+            <aside
+                className={`${isSidebarOpen ? 'w-72' : 'w-20'} hidden md:flex flex-col border-r border-white/10 bg-[#0a0a0c]/60 backdrop-blur-3xl transition-all duration-500 ease-[0.16, 1, 0.3, 1] z-50 font-mono`}
             >
                 <div className="p-8 flex items-center gap-3">
-                   <div className="w-6 h-6 rounded-full bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)] shrink-0"></div>
-                   {isSidebarOpen && <span className="text-[14px] font-black tracking-[0.3em] uppercase italic">LegacyZn</span>}
+                    {isSidebarOpen && <span className="text-[16px] font-display font-bold tracking-tighter uppercase text-white">Legacy<span className="text-purple-500">ZN</span> &nbsp; -_-</span>}
                 </div>
 
-                <nav className="flex-1 px-4 py-10 space-y-2">
+                <nav className="flex-1 px-4 space-y-2">
                     {navItems.map((item) => (
-                        <Link 
-                            href={item.path} 
+                        <Link
+                            href={item.path}
                             key={item.path}
-                            className={`flex items-center gap-4 px-4 py-4 rounded-none transition-all group ${pathname === item.path ? 'bg-white/5 text-white' : 'text-white/30 hover:text-white hover:bg-white/[0.02]'}`}
+                            className={`flex items-center gap-4 px-4 py-4 rounded-xl transition-all group ${pathname === item.path ? 'bg-white/5 text-white border-l-2 border-white' : 'text-white/30 hover:text-white hover:bg-white/5'}`}
                         >
-                            <span className={`${pathname === item.path ? 'text-white' : 'text-white/40 group-hover:text-white'} transition-colors`}>
+                            <span className={`${pathname === item.path ? 'text-white' : 'text-white/50 group-hover:text-white'} transition-colors`}>
                                 {item.icon}
                             </span>
                             {isSidebarOpen && (
-                              <span className="text-[10px] uppercase tracking-[0.2em] font-bold">
-                                {item.name}
-                              </span>
-                            )}
-                            {pathname === item.path && isSidebarOpen && (
-                               <motion.div layoutId="activeNav" className="ml-auto">
-                                  <ChevronRight className="w-3 h-3 text-white/20" />
-                               </motion.div>
+                                <span className="text-[10px] uppercase tracking-widest font-bold font-mono">
+                                    {item.name}
+                                </span>
                             )}
                         </Link>
                     ))}
                 </nav>
 
-                <div className="p-8 border-t border-white/5 space-y-4">
-                     <div className={`flex flex-col ${!isSidebarOpen && 'items-center'}`}>
-                        <span className="text-[8px] text-white/20 uppercase tracking-[0.2em] font-bold">Network</span>
-                        <div className="flex items-center gap-2 mt-1">
-                           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                           {isSidebarOpen && <span className="text-[9px] text-white/50 font-black uppercase tracking-[0.1em]">Devnet</span>}
+                <div className="p-8 border-t border-white/10 space-y-4">
+                    <div className={`flex flex-col ${!isSidebarOpen && 'items-center'}`}>
+                        <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold font-mono">Network</span>
+                        <div className="flex items-center gap-2 mt-2">
+                            <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse"></div>
+                            {isSidebarOpen && <span className="text-[10px] text-white/70 font-bold uppercase tracking-widest font-mono">Solana Devnet</span>}
                         </div>
-                     </div>
+                    </div>
                 </div>
             </aside>
 
             {/* 2. MAIN CONTENT AREA */}
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
                 {/* Topbar */}
-                <header className="h-24 border-b border-white/5 flex items-center justify-between px-10 bg-black/50 backdrop-blur-md z-40">
-                   <div className="flex items-center gap-4">
-                      <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-white/5 text-white/40 hover:text-white transition-colors">
-                         {isSidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-                      </button>
-                      <div className="h-4 w-px bg-white/5 mx-2" />
-                      <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 italic">
-                         {navItems.find(n => n.path === pathname)?.name || "Dashboard"}
-                      </h2>
-                   </div>
+                <header className="h-24 border-b border-white/10 flex items-center justify-between px-10 bg-[#0a0a0c]/60 backdrop-blur-md z-40">
+                    <div className="flex items-center gap-4">
+                        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-white/10 text-white/60 hover:text-white transition-colors rounded-lg">
+                            {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                        </button>
+                        <div className="h-4 w-px bg-white/10 mx-2" />
+                        <h2 className="text-[10px] font-bold font-mono uppercase tracking-widest text-white/40">
+                            {navItems.find(n => n.path === pathname)?.name || "Dashboard"}
+                        </h2>
+                    </div>
 
-                   <div className="flex items-center gap-6">
-                      <WalletMultiButton className="!bg-white !text-black hover:!opacity-90 !font-bold !rounded-none !h-11 !text-[9px] !uppercase !tracking-[0.25em] !px-10 transition-all shadow-2xl" />
-                   </div>
+                    <div className="flex items-center gap-6">
+                        <WalletMultiButton className="bg-white! text-black! hover:bg-neutral-200! hover:scale-[0.98]! transition-transform! font-display! font-bold! rounded-2xl! h-11! text-xs! uppercase! tracking-widest! px-8! shadow-xl!" />
+                    </div>
                 </header>
 
                 {/* Content */}

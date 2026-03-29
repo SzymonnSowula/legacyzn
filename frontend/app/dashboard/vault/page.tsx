@@ -12,10 +12,10 @@ export default function VaultPage() {
         <div className="w-full space-y-10">
             <header className="flex justify-between items-end">
                 <div>
-                    <h2 className="text-3xl font-black uppercase tracking-tighter italic">Vault Control</h2>
+                    <h2 className="text-3xl font-black uppercase tracking-tighter">Vault Control</h2>
                     <p className="text-white/30 text-[10px] uppercase tracking-[0.2em] font-bold mt-2">Manage your automated legacy protocols</p>
                 </div>
-                <Button 
+                <Button
                     onClick={() => setIsModalOpen(true)}
                     className="bg-white text-black px-8 py-4 text-[9px] font-bold uppercase tracking-[0.2em] hover:bg-neutral-200 transition-all shadow-xl rounded-none"
                 >

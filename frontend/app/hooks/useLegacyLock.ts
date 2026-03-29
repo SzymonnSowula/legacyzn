@@ -4,11 +4,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { AnchorProvider, Program } from '@coral-xyz/anchor';
 import { SystemProgram, PublicKey } from '@solana/web3.js';
-import { 
-    getVaultPDA, 
-    getBeneficiaryListPDA, 
+import {
+    getVaultPDA,
+    getBeneficiaryListPDA,
     getWitnessRegistryPDA,
-    getLegacyLockProgram 
+    getLegacyLockProgram
 } from '../lib/anchor';
 import { toast } from 'sonner';
 
@@ -26,10 +26,10 @@ export function useLegacyLock() {
     const handleError = useCallback((error: any, defaultTitle: string) => {
         const msg = error.message || "";
         console.error(`${defaultTitle}:`, error);
-        
+
         if (msg.includes("Attempt to debit an account but found no record of a prior credit")) {
-            toast.error("Brak środków", { 
-                description: "Nie masz wystarczającej ilości SOL na koncie, aby opłacić transakcję. Skorzystaj z 'airdrop' na devnecie." 
+            toast.error("Brak środków", {
+                description: "Nie masz wystarczającej ilości SOL na koncie, aby opłacić transakcję. Skorzystaj z 'airdrop' na devnecie."
             });
         } else {
             toast.error(defaultTitle, { description: msg });
@@ -39,8 +39,8 @@ export function useLegacyLock() {
     const getProvider = useCallback(() => {
         if (!wallet || !wallet.publicKey || !wallet.signTransaction || !wallet.signAllTransactions) return null;
         return new AnchorProvider(
-            connection, 
-            wallet as any, 
+            connection,
+            wallet as any,
             AnchorProvider.defaultOptions()
         );
     }, [wallet, connection]);
@@ -52,11 +52,15 @@ export function useLegacyLock() {
         try {
             const program = getLegacyLockProgram(provider, IDL);
             const [vaultPDA] = getVaultPDA(wallet.publicKey);
-            
+
             // Fetch everything in parallel
             const fetchPrice = async () => {
                 try {
-                    const response = await fetch('https://api.jup.ag/price/v2/simple?ids=So11111111111111111111111111111111111111112');
+                    const response = await fetch('https://api.jup.ag/price/v2/simple?ids=So11111111111111111111111111111111111111112', {
+                        headers: {
+                            'x-api-key': '30c1c0c7-23e8-42c8-98c3-eb688e0cb0c4'
+                        }
+                    });
                     const json = await response.json();
                     return parseFloat(json.data.So11111111111111111111111111111111111111112.price);
                 } catch (e) {
@@ -69,7 +73,7 @@ export function useLegacyLock() {
                 connection.getBalance(wallet.publicKey),
                 fetchPrice()
             ]);
-            
+
             setVaultData(vaultAccount);
             setBalance(currentBalance / 1000000000); // lamports to SOL
             setSolPrice(price);
@@ -87,8 +91,8 @@ export function useLegacyLock() {
     }, [refreshVault]);
 
     const initializeVault = async (
-        inactivityThresholdDays: number, 
-        vetoPeriodDays: number, 
+        inactivityThresholdDays: number,
+        vetoPeriodDays: number,
         witnessThreshold: number,
         beneficiaries: { pubkey: string, shareBps: number }[],
         witnesses: string[]
@@ -118,14 +122,14 @@ export function useLegacyLock() {
                 formattedBeneficiaries,
                 formattedWitnesses
             )
-            .accounts({
-                vault: vaultPDA,
-                beneficiaryList: beneficiaryPDA,
-                witnessRegistry: witnessRegistryPDA,
-                owner: wallet.publicKey,
-                systemProgram: SystemProgram.programId,
-            })
-            .rpc();
+                .accounts({
+                    vault: vaultPDA,
+                    beneficiaryList: beneficiaryPDA,
+                    witnessRegistry: witnessRegistryPDA,
+                    owner: wallet.publicKey,
+                    systemProgram: SystemProgram.programId,
+                })
+                .rpc();
 
             toast.success("Vault Initialized!", { description: `TX: ${tx}` });
             await refreshVault();
@@ -191,13 +195,13 @@ export function useLegacyLock() {
     const confirmInactivity = async () => {
         const provider = getProvider();
         if (!provider || !wallet.publicKey || !vaultData) return toast.error("Wallet not connected");
-        
+
         setIsLoading(true);
         try {
             const program = getLegacyLockProgram(provider, IDL);
             // In a real app, you would pass the owner pubkey of the vault you want to witness
             // Here we assume it for MVP
-            const [vaultPDA] = getVaultPDA(vaultData.owner); 
+            const [vaultPDA] = getVaultPDA(vaultData.owner);
             const [witnessRegistryPDA] = getWitnessRegistryPDA(vaultPDA);
 
             const tx = await program.methods.confirmInactivity()
@@ -224,8 +228,8 @@ export function useLegacyLock() {
         setIsLoading(true);
         try {
             const program = getLegacyLockProgram(provider, IDL);
-            const [vaultPDA] = getVaultPDA(vaultData.owner); 
-            
+            const [vaultPDA] = getVaultPDA(vaultData.owner);
+
             const tx = await program.methods.executeInheritance()
                 .accounts({
                     vault: vaultPDA,

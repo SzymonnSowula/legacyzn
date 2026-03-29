@@ -49,7 +49,7 @@ export default function LegacyLockModal({ isOpen, onOpenChange }: { isOpen: bool
             const sessionKeypair = Keypair.generate();
             const sessionSecret = Buffer.from(sessionKeypair.secretKey).toString('base64');
             window.localStorage.setItem('legacyLockSessionKey', sessionSecret);
-            
+
             await initializeVault(
                 parseInt(inactivityDays),
                 parseInt(vetoDays),
@@ -66,93 +66,93 @@ export default function LegacyLockModal({ isOpen, onOpenChange }: { isOpen: bool
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>Initialize Legacy Lock</DialogTitle>
-                    <DialogDescription>
-                        Set up your vault parameters. A session key will be automatically generated and stored locally.
+            <DialogContent className="sm:max-w-[500px] bg-[#0a0a0c] border border-white/10 rounded-3xl shadow-2xl">
+                <DialogHeader className="space-y-4">
+                    <DialogTitle className="text-3xl font-display font-bold tracking-tighter uppercase text-white">Initialize Protocol</DialogTitle>
+                    <DialogDescription className="text-white/40 text-xs font-mono leading-relaxed uppercase tracking-widest">
+                        Configure vault parameters. A local session key will be generated for immutable heritage automation.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-4 py-4 mt-2">
-                    <div className="grid gap-2">
-                        <Label htmlFor="inactivity">Inactivity Threshold (Days)</Label>
-                        <Input id="inactivity" type="number" min="1" value={inactivityDays} onChange={(e) => setInactivityDays(e.target.value)} />
-                        <p className="text-xs text-neutral-500">{(parseInt(inactivityDays) || 0) * 86400} seconds</p>
+                <div className="grid gap-6 py-6 mt-4 border-t border-white/10">
+                    <div className="grid gap-3">
+                        <Label htmlFor="inactivity" className="text-[10px] font-mono font-bold uppercase tracking-widest text-white/50">Inactivity Threshold (Days)</Label>
+                        <Input id="inactivity" type="number" min="1" value={inactivityDays} onChange={(e) => setInactivityDays(e.target.value)} className="bg-white/5 border-white/10 text-white font-mono rounded-xl h-12 focus:border-white/30 transition-colors" />
+                        <p className="text-[10px] text-white/20 font-mono italic">SEC_EQUIV: {(parseInt(inactivityDays) || 0) * 86400}S</p>
                     </div>
-                    <div className="grid gap-2">
-                        <Label htmlFor="veto">Veto Period (Days)</Label>
-                        <Input id="veto" type="number" min="1" value={vetoDays} onChange={(e) => setVetoDays(e.target.value)} />
-                        <p className="text-xs text-neutral-500">{(parseInt(vetoDays) || 0) * 86400} seconds</p>
-                    </div>
-                    <div className="grid gap-2">
-                        <Label htmlFor="witness">Required Confirmations</Label>
-                        <Input id="witness" type="number" min="1" max={witnesses.length} value={witnessThreshold} onChange={(e) => setWitnessThreshold(e.target.value)} />
+                    <div className="grid gap-3">
+                        <Label htmlFor="veto" className="text-[10px] font-mono font-bold uppercase tracking-widest text-white/50">Veto Period (Days)</Label>
+                        <Input id="veto" type="number" min="1" value={vetoDays} onChange={(e) => setVetoDays(e.target.value)} className="bg-white/5 border-white/10 text-white font-mono rounded-xl h-12 focus:border-white/30 transition-colors" />
+                        <p className="text-[10px] text-white/20 font-mono italic">SEC_EQUIV: {(parseInt(vetoDays) || 0) * 86400}S</p>
                     </div>
 
                     {/* Beneficiaries Section */}
-                    <div className="space-y-4 pt-4 border-t border-white/5">
+                    <div className="space-y-4 pt-6 border-t border-white/10">
                         <div className="flex justify-between items-center">
-                            <Label className="text-white font-black uppercase text-[10px] tracking-widest italic">Beneficiaries</Label>
-                            <Button size="icon" variant="ghost" className="h-6 w-6 hover:bg-white/5" onClick={addBeneficiary}><Plus className="w-3 h-3" /></Button>
+                            <Label className="text-white font-mono font-bold uppercase text-[10px] tracking-widest">Beneficiaries List</Label>
+                            <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-white/5 text-white/40" onClick={addBeneficiary}><Plus className="w-4 h-4" /></Button>
                         </div>
                         {beneficiaries.map((b, i) => (
-                            <div key={i} className="flex gap-2">
-                                <Input 
-                                    placeholder="Wallet Address" 
-                                    className="flex-1 text-[10px] uppercase font-bold tracking-wider" 
-                                    value={b.pubkey} 
+                            <div key={i} className="flex gap-2 group">
+                                <Input
+                                    placeholder="WALLET_ADDR_BASE58"
+                                    className="flex-1 text-[10px] font-mono font-bold uppercase tracking-widest bg-white/5 border-white/10 rounded-xl h-10"
+                                    value={b.pubkey}
                                     onChange={(e) => {
                                         const n = [...beneficiaries];
                                         n[i].pubkey = e.target.value;
                                         setBeneficiaries(n);
-                                    }} 
+                                    }}
                                 />
-                                <Input 
-                                    className="w-20 text-[10px] font-bold" 
-                                    type="number" 
-                                    placeholder="%" 
-                                    value={b.share} 
+                                <Input
+                                    className="w-20 text-[10px] font-mono font-bold bg-white/5 border-white/10 rounded-xl h-10"
+                                    type="number"
+                                    placeholder="%"
+                                    value={b.share}
                                     onChange={(e) => {
                                         const n = [...beneficiaries];
                                         n[i].share = e.target.value;
                                         setBeneficiaries(n);
-                                    }} 
+                                    }}
                                 />
                                 {beneficiaries.length > 1 && (
-                                    <Button size="icon" variant="ghost" className="h-9 w-9 text-rose-500/50 hover:text-rose-500 hover:bg-rose-500/5" onClick={() => removeBeneficiary(i)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                                    <Button size="icon" variant="ghost" className="h-10 w-10 text-rose-500/30 hover:text-rose-500 hover:bg-rose-500/5 transition-all" onClick={() => removeBeneficiary(i)}><Trash2 className="w-4 h-4" /></Button>
                                 )}
                             </div>
                         ))}
                     </div>
 
                     {/* Witnesses Section */}
-                    <div className="space-y-4 pt-4 border-t border-white/5">
+                    <div className="space-y-4 pt-6 border-t border-white/10">
                         <div className="flex justify-between items-center">
-                            <Label className="text-white font-black uppercase text-[10px] tracking-widest italic">Witness Registry</Label>
-                            <Button size="icon" variant="ghost" className="h-6 w-6 hover:bg-white/5" onClick={addWitness}><Plus className="w-3 h-3" /></Button>
+                            <Label className="text-white font-mono font-bold uppercase text-[10px] tracking-widest">Witness Registry</Label>
+                            <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-white/5 text-white/40" onClick={addWitness}><Plus className="w-4 h-4" /></Button>
                         </div>
                         {witnesses.map((w, i) => (
                             <div key={i} className="flex gap-2">
-                                <Input 
-                                    placeholder="Witness Wallet Address" 
-                                    className="flex-1 text-[10px] uppercase font-bold tracking-wider" 
-                                    value={w} 
+                                <Input
+                                    placeholder="WITNESS_ADDR_BASE58"
+                                    className="flex-1 text-[10px] font-mono font-bold uppercase tracking-widest bg-white/5 border-white/10 rounded-xl h-10"
+                                    value={w}
                                     onChange={(e) => {
                                         const n = [...witnesses];
                                         n[i] = e.target.value;
                                         setWitnesses(n);
-                                    }} 
+                                    }}
                                 />
                                 {witnesses.length > 1 && (
-                                    <Button size="icon" variant="ghost" className="h-9 w-9 text-rose-500/50 hover:text-rose-500 hover:bg-rose-500/5" onClick={() => removeWitness(i)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                                    <Button size="icon" variant="ghost" className="h-10 w-10 text-rose-500/30 hover:text-rose-500 hover:bg-rose-500/5 transition-all" onClick={() => removeWitness(i)}><Trash2 className="w-4 h-4" /></Button>
                                 )}
                             </div>
                         ))}
+                        <div className="grid gap-3 pt-2">
+                            <Label htmlFor="witness" className="text-[10px] font-mono font-bold uppercase tracking-widest text-white/50">Required Approvals</Label>
+                            <Input id="witness" type="number" min="1" max={witnesses.length} value={witnessThreshold} onChange={(e) => setWitnessThreshold(e.target.value)} className="bg-white/5 border-white/10 text-white font-mono rounded-xl h-12" />
+                        </div>
                     </div>
                 </div>
-                <div className="flex justify-end gap-3">
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-                    <Button onClick={handleCreate} disabled={isLoading}>Create Legacy Lock</Button>
+                <div className="flex gap-4 pt-6">
+                    <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1 border-white/10 text-white/40 hover:bg-white/5 h-14 font-mono font-bold uppercase text-xs tracking-widest rounded-xl">Cancel</Button>
+                    <Button onClick={handleCreate} disabled={isLoading} className="flex-1 bg-white text-black hover:bg-neutral-200 h-14 font-display font-bold uppercase text-xs tracking-widest rounded-xl shadow-2xl">Deploy Protocol</Button>
                 </div>
             </DialogContent>
         </Dialog>
