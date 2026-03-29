@@ -4,6 +4,15 @@ members = [
 ]
 resolver = "2"
 
+[workspace.dependencies]
+proc-macro2 = { version = "1.0.106", features = ["span-locations"] }
+
+[patch.crates-io]
+proc-macro2 = { git = "https://github.com/dtolnay/proc-macro2", rev = "b32810a" }
+
+[dependencies]
+anchor-lang = "0.32.1"
+
 [profile.release]
 overflow-checks = true
 lto = "fat"
